@@ -19,21 +19,11 @@ import { FirstTimeTourModal } from './components/common/FirstTimeTourModal';
 import { HelpGuideModal } from './components/common/HelpGuideModal';
 import { ShieldAlert } from 'lucide-react';
 
-const AdminLoginPage = React.lazy(() =>
-  import('./components/auth/AdminLoginPage').then((m) => ({ default: m.AdminLoginPage }))
-);
-const AgencyAuthFlow = React.lazy(() =>
-  import('./components/auth/AgencyAuthFlow').then((m) => ({ default: m.AgencyAuthFlow }))
-);
-const MediaOwnerPortal = React.lazy(() =>
-  import('./components/auth/MediaOwnerPortal').then((m) => ({ default: m.MediaOwnerPortal }))
-);
-const AcceptInvitationPage = React.lazy(() =>
-  import('./components/auth/AcceptInvitationPage').then((m) => ({ default: m.AcceptInvitationPage }))
-);
-const BillboardDetail = React.lazy(() =>
-  import('./components/public/BillboardDetail').then((m) => ({ default: m.BillboardDetail }))
-);
+import { AdminLoginPage } from './components/auth/AdminLoginPage';
+import { AgencyAuthFlow } from './components/auth/AgencyAuthFlow';
+import { MediaOwnerPortal } from './components/auth/MediaOwnerPortal';
+import { AcceptInvitationPage } from './components/auth/AcceptInvitationPage';
+import { BillboardDetail } from './components/public/BillboardDetail';
 
 const ViewLoader: React.FC = () => (
   <div className="min-h-[400px] flex items-center justify-center p-12">
@@ -116,6 +106,7 @@ const MainApp: React.FC = () => {
         return;
       }
 
+      sessionStorage.setItem('adgrid_post_login_redirect', `/marketplace/${billboard.id}`);
       setAuthAlert({
         message: `To reserve ${billboard.name}, sign in to your agency portal.`,
         type: 'info',
@@ -142,6 +133,13 @@ const MainApp: React.FC = () => {
   const handleAdminLoginSuccess = useCallback(
     (targetDashboardUrl: string) => {
       setAuthAlert(null);
+
+      const postLoginRedirect = sessionStorage.getItem('adgrid_post_login_redirect');
+      if (postLoginRedirect) {
+        sessionStorage.removeItem('adgrid_post_login_redirect');
+        navigateTo(postLoginRedirect);
+        return;
+      }
 
       if (activePurchaseBillboard && targetDashboardUrl === '/admin/client') {
         setActiveTab('live-tracker');
@@ -316,14 +314,12 @@ const MainApp: React.FC = () => {
     return (
       <>
         {authAlert && <AuthToast alert={authAlert} />}
-        <React.Suspense fallback={<ViewLoader />}>
-          <MediaOwnerPortal
-            initialMode={initialMode}
-            onSuccessRedirect={handleAdminLoginSuccess}
-            onNavigatePublicMarketplace={() => navigateTo('/marketplace')}
-            onNavigateTo={navigateTo}
-          />
-        </React.Suspense>
+        <MediaOwnerPortal
+          initialMode={initialMode}
+          onSuccessRedirect={handleAdminLoginSuccess}
+          onNavigatePublicMarketplace={() => navigateTo('/marketplace')}
+          onNavigateTo={navigateTo}
+        />
       </>
     );
   }
@@ -336,12 +332,10 @@ const MainApp: React.FC = () => {
     return (
       <>
         {authAlert && <AuthToast alert={authAlert} />}
-        <React.Suspense fallback={<ViewLoader />}>
-          <AcceptInvitationPage
-            onSuccessRedirect={handleAdminLoginSuccess}
-            onNavigateTo={navigateTo}
-          />
-        </React.Suspense>
+        <AcceptInvitationPage
+          onSuccessRedirect={handleAdminLoginSuccess}
+          onNavigateTo={navigateTo}
+        />
       </>
     );
   }
@@ -361,14 +355,12 @@ const MainApp: React.FC = () => {
     return (
       <>
         {authAlert && <AuthToast alert={authAlert} />}
-        <React.Suspense fallback={<ViewLoader />}>
-          <AgencyAuthFlow
-            initialMode={initialMode}
-            onSuccessRedirect={handleAdminLoginSuccess}
-            onNavigatePublicMarketplace={() => navigateTo('/marketplace')}
-            onNavigateTo={navigateTo}
-          />
-        </React.Suspense>
+        <AgencyAuthFlow
+          initialMode={initialMode}
+          onSuccessRedirect={handleAdminLoginSuccess}
+          onNavigatePublicMarketplace={() => navigateTo('/marketplace')}
+          onNavigateTo={navigateTo}
+        />
       </>
     );
   }
@@ -378,12 +370,10 @@ const MainApp: React.FC = () => {
     return (
       <>
         {authAlert && <AuthToast alert={authAlert} />}
-        <React.Suspense fallback={<ViewLoader />}>
-          <AdminLoginPage
-            onSuccessRedirect={handleAdminLoginSuccess}
-            onNavigatePublicMarketplace={() => navigateTo('/marketplace')}
-          />
-        </React.Suspense>
+        <AdminLoginPage
+          onSuccessRedirect={handleAdminLoginSuccess}
+          onNavigatePublicMarketplace={() => navigateTo('/marketplace')}
+        />
       </>
     );
   }
@@ -501,13 +491,11 @@ const MainApp: React.FC = () => {
 
       <main>
         {currentPath.startsWith('/marketplace/') && selectedBillboard ? (
-          <React.Suspense fallback={<ViewLoader />}>
-            <BillboardDetail
-              billboard={selectedBillboard}
-              onBack={() => navigateTo('/marketplace')}
-              onStartPurchase={handlePurchaseBillboard}
-            />
-          </React.Suspense>
+          <BillboardDetail
+            billboard={selectedBillboard}
+            onBack={() => navigateTo('/marketplace')}
+            onStartPurchase={handlePurchaseBillboard}
+          />
         ) : (
           <MarketplaceHome
             onSelectBillboard={handleSelectBillboard}

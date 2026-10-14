@@ -162,17 +162,15 @@ export const MarketplaceHome: React.FC<MarketplaceHomeProps> = ({
     setIsNotifyModalOpen(true);
   };
 
-  // Guarded actions: clicking anywhere to get deeper info not on the landing page triggers sign in popup
+  // Connect directly to agency login page, after which the linked billboard page will be displayed
   const handleInspectBillboard = (billboard: MarketplaceBillboard) => {
     if (!currentUser) {
-      openSignInModal({
-        title: 'Sign In to Inspect Location',
-        reason: `Sign in to access detailed corridor telemetry, high-resolution views, traffic analytics, and verified operator specs for "${billboard.name}".`,
-        targetRole: 'Agency Admin',
-        onSuccess: () => {
-          onSelectBillboard(billboard);
-        },
-      });
+      sessionStorage.setItem('adgrid_post_login_redirect', `/marketplace/${billboard.id}`);
+      if (onNavigateTo) {
+        onNavigateTo('/agency/login');
+      } else {
+        window.location.href = '/agency/login';
+      }
       return;
     }
     onSelectBillboard(billboard);

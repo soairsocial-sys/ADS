@@ -332,3 +332,5 @@ export const AcceptInvitationPage: React.FC<AcceptInvitationPageProps> = ({
     </div>
   );
 };
+
+export default AcceptInvitationPage;

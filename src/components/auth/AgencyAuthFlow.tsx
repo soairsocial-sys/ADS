@@ -730,3 +730,5 @@ export const AgencyAuthFlow: React.FC<AgencyAuthFlowProps> = ({
     </div>
   );
 };
+
+export default AgencyAuthFlow;

@@ -598,3 +598,5 @@ export const MediaOwnerPortal: React.FC<MediaOwnerPortalProps> = ({
     </div>
   );
 };
+
+export default MediaOwnerPortal;
